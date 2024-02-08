@@ -52,11 +52,11 @@ const router = createBrowserRouter([
         element: <CreatePost />
       },
       {
-        path: 'post/categories/:category',
+        path: 'posts/categories/:category',
         element: <CategoryPosts />
       },
       {
-        path: 'posts/user/:id',
+        path: 'posts/users/:id',
         element: <AuthorPosts />
       },
       {

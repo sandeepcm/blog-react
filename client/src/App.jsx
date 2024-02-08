@@ -1,16 +1,16 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { Outlet } from 'react-router-dom'
-import { Footer } from './components/Footer'
 import Header from './components/Header'
+import Footer from './components/Footer'
 
 function App() {
   return (
-    <div className="max-w-screen-xl mx-auto px-2">
+    <div>
       <Header />
-      <main className="mt-8 ">
+      <main className="max-w-screen-xl mx-auto px-2 py-6">
         <Outlet />
       </main>
       <Footer />
