@@ -1,44 +1,97 @@
 // ========== REGISTER A NEW USER
 // POST api/users/register
 // UNPROTECTED
-const registerUser =(req, res, next) => {
+const registerUser = async (req, res, next) => {
   res.json("Register User")
 }
+
+
+
+
+
+
+
+
+
 
 // ========== LOGIN A REGISTER USER
 // POST api/users/login
 // PROTECTED
-const loginUser =(req, res, next) => {
+const loginUser = async (req, res, next) => {
   res.json("Login User")
 }
+
+
+
+
+
+
+
+
+
 
 // ========== USER PROFILE
 // POST api/users/:id
 // PROTECTED
-const getUser =(req, res, next) => {
-  res.json("Get User")
+const getUser = async (req, res, next) => {
+  res.json("User Profile")
 }
+
+
+
+
+
+
+
+
 
 
 // ========== CHANGE USER AVATAR (profile picture)
 // POST api/users/change-avatar
 // PROTECTED
-const changeAvatar =(req, res, next) => {
+const changeAvatar = async (req, res, next) => {
   res.json("Change User Avatar")
 }
+
+
+
+
+
+
+
+
+
 
 // ========== EDIT USER DETAILS (from profile)
 // POST api/users/edit-user
 // PROTECTED
-const editUser =(req, res, next) => {
+const editUser = async (req, res, next) => {
   res.json("Edit User Details")
 }
+
+
+
+
+
+
+
+
+
 
 // ========== USER AUTHORS
 // POST api/users/authors
 // UNPROTECTED
-const getAuthors =(req, res, next) => {
+const getAuthors = async (req, res, next) => {
   res.json("Get all users/authors")
 }
 
-module.exports = {registerUser, loginUser, getUser, changeAvatar, editUser, editUser, getAuthors }
+
+
+
+
+
+
+
+
+
+module.exports = {registerUser, loginUser, getUser, changeAvatar, editUser, getAuthors }
