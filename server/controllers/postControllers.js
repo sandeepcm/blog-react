@@ -11,7 +11,37 @@ const HttpError = require("../models/errorModel")
 // POST api/posts
 // UNPROTECTED
 const createPost = async (req, res, next) => {
-  res.json("Create post.")
+  try {
+    let { title, category, description } = req.body;
+    if(!title || !category || !description || !res.files) {
+      return next(HttpError("Fill in all fields and choose thumbnail." ,422))
+    }
+    const {thumbnail} = req.files;
+    // Check the files size
+    if(thumbnail.size > 20000000){
+      return next(HttpError("The image file size is too big it should be less than 2MB"))
+    }
+    let fileName = thumbnail.name;
+    let splittedFileName = fileName.split('.')
+    let newFileName = splittedFileName[0] + uuid() + '.' + splittedFileName[splittedFileName.length - 1]
+    thumbnail.mv(path.join(__dirname, '..'), '/uploads', fileName), async (err) => {
+      if(err){
+        return next(new HttpError(err))
+      } else {
+        const newPost = await Post.create({title, category, description, thumbnail: newFileName, creator: req.user.id})
+        if(!newPost) {
+          return next(new HttpError("Post could not be created.", 422))
+        }
+        // find user and increase post count by 1
+        const currentUser = await User.findById(req.user.id)
+        const userPostCount = currentUser.posts + 1;
+        await User.findByIdAndUpdate(req.user.id, {posts: userPostCount})
+        res.status(201).json(newPost)
+      }
+    }
+  } catch (error) {
+    return next(new HttpError(error))
+  }
 }
 
 
@@ -26,7 +56,11 @@ const createPost = async (req, res, next) => {
 // GET api/posts/:id
 // UNPROTECTED
 const getPosts = async (req, res, next) => {
-  res.json("Get all posts.")
+  try {
+    
+  } catch (error) {
+    return next(new HttpError(error))
+  }
 }
 
 
@@ -42,7 +76,11 @@ const getPosts = async (req, res, next) => {
 // GET api/posts/:id
 // UNPROTECTED
 const getPost = async (req, res, next) => {
-  res.json("Get single posts.")
+  try {
+    
+  } catch (error) {
+    return next(new HttpError(error))
+  }
 }
 
 
@@ -57,7 +95,11 @@ const getPost = async (req, res, next) => {
 // GET api/posts/categories/:categoryId
 // UNPROTECTED
 const getCategoryPosts = async (req, res, next) => {
-  res.json("Get post by categories.")
+  try {
+    
+  } catch (error) {
+    return next(new HttpError(error))
+  }
 }
 
 
@@ -71,7 +113,11 @@ const getCategoryPosts = async (req, res, next) => {
 // GET api/posts/users/:id
 // UNPROTECTED
 const getUserPosts = async (req, res, next) => {
-  res.json("Get all author posts.")
+  try {
+    
+  } catch (error) {
+    return next(new HttpError(error))
+  }
 }
 
 
@@ -85,7 +131,11 @@ const getUserPosts = async (req, res, next) => {
 // PATCH api/posts/users/:id
 // PROTECTED
 const editPost = async (req, res, next) => {
-  res.json("Edit post")
+  try {
+    
+  } catch (error) {
+    return next(new HttpError(error))
+  }
 }
 
 
@@ -99,7 +149,11 @@ const editPost = async (req, res, next) => {
 // DELETE api/posts/users/:id
 // PROTECTED
 const deletePost = async (req, res, next) => {
-  res.json("delete post")
+  try {
+    
+  } catch (error) {
+    return next(new HttpError(error))
+  }
 }
 
 
