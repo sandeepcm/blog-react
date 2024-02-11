@@ -59,7 +59,8 @@ const createPost = async (req, res, next) => {
 // UNPROTECTED
 const getPosts = async (req, res, next) => {
   try {
-    
+      const posts = await Post.find().sort({updatedAt: -1})
+      res.status(200).json(posts)
   } catch (error) {
     return next(new HttpError(error))
   }
@@ -79,7 +80,11 @@ const getPosts = async (req, res, next) => {
 // UNPROTECTED
 const getPost = async (req, res, next) => {
   try {
-    
+    const postId = req.params.id;
+    const post = await Post.findById(postId);
+    if(!post){
+      return(new HttpError("Post not found", 404 ))
+    }
   } catch (error) {
     return next(new HttpError(error))
   }
@@ -94,11 +99,13 @@ const getPost = async (req, res, next) => {
 
 
 // ========== 4. GET POSTS BY CATEGORY
-// GET api/posts/categories/:categoryId
+// GET api/posts/categories/:category
 // UNPROTECTED
 const getCategoryPosts = async (req, res, next) => {
   try {
-    
+    const {category} = req.params;
+    const categoryPosts = await Post.find({category}).sort({updatedAt: -1})
+    res.status(200).json(categoryPosts)
   } catch (error) {
     return next(new HttpError(error))
   }
@@ -116,7 +123,9 @@ const getCategoryPosts = async (req, res, next) => {
 // UNPROTECTED
 const getUserPosts = async (req, res, next) => {
   try {
-    
+    const {id} = req.params;
+    const authorPosts = await Post.find({creator: id}).sort({createdAt: -1});
+    res.status(200).json(authorPosts)
   } catch (error) {
     return next(new HttpError(error))
   }
@@ -134,7 +143,46 @@ const getUserPosts = async (req, res, next) => {
 // PROTECTED
 const editPost = async (req, res, next) => {
   try {
-    
+    let fileName;
+    let newFileName;
+    let updatePost;
+    const postId = req.params.id;
+    let {title, category, description}= req.body;
+
+    if(!title, !category, description.length > 12) {
+      return next(new HttpError("Fill in all fields.", 422))
+    }
+    if(!req.files) {
+      updatedPost = await Post.findByIdAndUpdate(postId, {title, category, description}, {new: true})
+    } else {
+      // get old thumbnail from upload
+      const oldPost = await Post.findById(postId);
+      fs.unlink(path.join(__dirname, '..', 'uploads', oldPost.thumbnail), async (err) => {
+        if(err){
+          return next(new HttpError(err))
+        }
+      })
+    }
+    // upload new thumbnail
+    const thumbnail = req.files;
+    // check file size
+    if(thumbnail.size > 2000000) {
+      return next(new HttpError("Thumbnail is too big should be less than 2MB"))
+    }
+    fileName = thumbnail.name;
+    let splittedFileName = fileName.split('.');
+    newFileName = splittedFileName[0] + uuid() + '.' + splittedFileName[splittedFileName.length - 1];
+
+    thumbnail.mv(path.join(__dirname, '.', 'uploads', newFileName), async (err) => {
+      if(err) {
+        return next(new HttpError(err))
+      }
+    })
+    updatePost = await Post.findByIdAndUpdate(postId, {title, description, thumbnail: newFileName}, {new: true})
+    if(!updatePost){
+      return next(new HttpError("Could not update the post", 400))
+    }
+    res.status(200).json(updatePost)
   } catch (error) {
     return next(new HttpError(error))
   }
