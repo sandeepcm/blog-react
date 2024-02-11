@@ -5,6 +5,7 @@ const path = require('path')
 const {v4: uuid} = require('uuid')
 
 const User = require('../models/userModel')
+const Post = require('../models/postModel')
 const HttpError = require("../models/errorModel")
 
 // ========== 1. CREATE POST
@@ -13,32 +14,33 @@ const HttpError = require("../models/errorModel")
 const createPost = async (req, res, next) => {
   try {
     let { title, category, description } = req.body;
-    if(!title || !category || !description || !res.files) {
-      return next(HttpError("Fill in all fields and choose thumbnail." ,422))
+    if(!title || !category || !description || !req.files) {
+      return next(new HttpError("Fill in all fields and choose thumbnail." ,422))
     }
     const {thumbnail} = req.files;
     // Check the files size
-    if(thumbnail.size > 20000000){
-      return next(HttpError("The image file size is too big it should be less than 2MB"))
+    if(thumbnail.size > 2000000){
+      return next(new HttpError("The image file size is too big it should be less than 2MB"))
     }
     let fileName = thumbnail.name;
     let splittedFileName = fileName.split('.')
-    let newFileName = splittedFileName[0] + uuid() + '.' + splittedFileName[splittedFileName.length - 1]
-    thumbnail.mv(path.join(__dirname, '..'), '/uploads', fileName), async (err) => {
-      if(err){
-        return next(new HttpError(err))
+    let newFileName = splittedFileName[0] + uuid() + "." + splittedFileName[splittedFileName.length - 1]
+
+    thumbnail.mv(path.join(__dirname, '..', 'uploads', newFileName), async (err) => {
+      if (err) {
+        return next(new HttpError(err));
       } else {
-        const newPost = await Post.create({title, category, description, thumbnail: newFileName, creator: req.user.id})
-        if(!newPost) {
-          return next(new HttpError("Post could not be created.", 422))
+        const newPost = await Post.create({ title, category, description, thumbnail: newFileName, creator: req.user.id });
+        if (!newPost) {
+          return next(new HttpError("Post could not be created.", 422));
         }
         // find user and increase post count by 1
-        const currentUser = await User.findById(req.user.id)
+        const currentUser = await User.findById(req.user.id);
         const userPostCount = currentUser.posts + 1;
-        await User.findByIdAndUpdate(req.user.id, {posts: userPostCount})
+        await User.findByIdAndUpdate(req.user.id, { posts: userPostCount });
         res.status(201).json(newPost)
       }
-    }
+    })
   } catch (error) {
     return next(new HttpError(error))
   }
